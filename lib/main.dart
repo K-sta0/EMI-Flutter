@@ -84,7 +84,24 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        leading: IconButton(
+          icon: const Icon(Icons.list),
+          tooltip: 'Show Navigation Menu',
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('This is a snackbar')));
+          }
+        ),
+        actions: [
+      IconButton(
+          icon: const Icon(Icons.account_circle),
+          tooltip: 'Show Navigation Menu',
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('This is a snackbar')));
+          })
+        ],
+        title: Text("Study-App"),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it

@@ -243,7 +243,6 @@ class DoppelStundeWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Полоса
           Container(
             height: 30.0,
             decoration: BoxDecoration(
@@ -260,7 +259,6 @@ class DoppelStundeWidget extends StatelessWidget {
                   size: 16.0,
                   color: Colors.white,
                 ),
-                //Отступ между иконкой и временем
                 const SizedBox(width: 4.0),
                 Text(
                   time,
@@ -369,9 +367,41 @@ class Stundenplan extends StatelessWidget {
   }
 }
 
+class Dashboard extends StatelessWidget {
+  const Dashboard({super.key});
 
-class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Mitteilung
+          Notification(),
+          const SizedBox(height: 16.0),
+          Date(),
+          const SizedBox(height: 16.0),
+          FastNavigation(),
+          const SizedBox(height: 16.0),
+          Mensa(),
+          SizedBox(height: 16.0),
+          Stundenplan(),
+        ],
+      ),
+    );
+  }
+}
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyApp();
+}
+
+class _MyApp extends State<MyApp> {
+  int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -399,23 +429,29 @@ class MyApp extends StatelessWidget {
           title: const Text('Study-App'),
           backgroundColor: Colors.blue.shade800,
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Mitteilung
-              Notification(),
-              const SizedBox(height: 16.0),
-              Date(),
-              const SizedBox(height: 16.0),
-              FastNavigation(),
-              const SizedBox(height: 16.0),
-              Mensa(),
-              SizedBox(height: 16.0),
-              Stundenplan(),
-            ],
-          ),
+        body: [Dashboard(),Mensa(),Stundenplan()][currentPageIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today),
+              label: 'Calendar',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.notifications),
+              label: 'Notifications',
+            ),
+          ],
+          onTap: (int index) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          },
+          currentIndex: currentPageIndex,
+          selectedItemColor: Colors.amber[800],
         ),
       ),
     );

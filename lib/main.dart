@@ -156,6 +156,23 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         backgroundColor: Colors.blue.shade900,
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.list),
+            tooltip: 'Show Navigation Menu',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('This is a snackbar')));
+              }
+            ),
+          actions: [
+            IconButton(
+            icon: const Icon(Icons.account_circle),
+            tooltip: 'Show Navigation Menu',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('This is a snackbar')));
+              })
+            ],
           title: const Text('Study-App'),
           backgroundColor: Colors.blue.shade800,
         ),

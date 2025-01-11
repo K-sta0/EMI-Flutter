@@ -136,6 +136,25 @@ class MyApp extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(height: 16.0),
+              // Bottom Navigation Bar
+              BottomNavigationBar(
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.dashboard),
+                    label: 'Dashboard',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.calendar_today),
+                    label: 'Stundenplan',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.menu),
+                    label: 'ToDo',
+                  ),
+
+                ],
+              )
             ],
           ),
         ),

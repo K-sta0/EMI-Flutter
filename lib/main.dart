@@ -408,6 +408,103 @@ class Dashboard extends StatelessWidget {
   }
 }
 
+class TODOlist extends StatelessWidget {
+  const TODOlist({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    {
+      return Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.check_box, color: Colors.purple),
+                      const SizedBox(width: 10,),
+                      Text("Aboba", style: TextStyle(
+                        fontSize: 20,
+                      ),),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.edit_outlined, size: 30,),
+                      Icon(Icons.delete, size: 30,),
+                    ],
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      );
+    }
+  }
+}
+
+class TODODay extends StatelessWidget {
+  const TODODay({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    {
+      return Column(
+        children: [Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10)
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 10,),
+              Text('Heute',
+                style: TextStyle(
+                  fontSize: 20
+                ),
+              ),
+              TODOlist(),
+              TODOlist(),
+            ],
+          ),
+        )]
+      );
+    }
+  }
+}
+
+class TODOPage extends StatelessWidget {
+  const TODOPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    {
+      return Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            SizedBox(height: 10),
+            TODODay(),
+            SizedBox(height: 20),
+            TODODay(),
+            SizedBox(height: 20),
+            TODODay(),
+          ],
+        ),
+      );
+    }
+  }
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -444,7 +541,7 @@ class _MyApp extends State<MyApp> {
           title: const Text('Study-App'),
           backgroundColor: Colors.blue.shade800,
         ),
-        body: [Dashboard(),Mensa(),Stundenplan()][currentPageIndex],
+        body: [Dashboard(),Mensa(),TODOPage()][currentPageIndex],
         bottomNavigationBar: BottomNavigationBar(
           items: const [
             BottomNavigationBarItem(
@@ -468,6 +565,13 @@ class _MyApp extends State<MyApp> {
           currentIndex: currentPageIndex,
           selectedItemColor: Colors.amber[800],
         ),
+        floatingActionButton: currentPageIndex == 2 ? FloatingActionButton.small(
+          elevation: 0.0,
+          backgroundColor: Colors.white70,
+          onPressed: () {},
+          heroTag: FloatingActionButtonLocation.centerFloat,
+          child: const Icon(Icons.add),
+        ): null,
       ),
     );
   }

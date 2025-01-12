@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'service.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TodoState(),
+      child: MyApp(),
+    ),
+  );
+}
+
+enum TodoDay {
+  HE('Heute'), MO('Morgen'), UB('Übermorgen');
+
+  final String abbreviation;
+  const TodoDay(this.abbreviation);
 }
 
 class Notification extends StatefulWidget {
@@ -627,19 +641,39 @@ class _StundenplanPage extends State<StundenplanPage> {
 }
 
 class PopUp extends StatelessWidget {
-  const PopUp({super.key});
+  const PopUp({super.key, required this.day, required this.index});
+  final TodoDay day;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController textController = TextEditingController();
     return AlertDialog(
-      title: const Text('Einschreibung für mündliche Prüfungen'),
-      content: const Text('Die Einschreibung für mündliche Prüfungen hat begonnen und endet am 21.01.2025.'),
+      title: const Text('Ändern Sie Ihre ToDO'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: textController,
+            decoration: const InputDecoration(
+              labelText: 'Geben Sie Ihre neue ToDO ein',
+            ),
+          ),
+        ],
+      ),
       actions: [
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Schließen'),
+          child: const Text('Abbrechen'),
+        ),
+        TextButton(
+          onPressed: () {
+            Provider.of<TodoState>(context, listen: false).changeToDO(day, index, textController.text);
+            Navigator.of(context).pop();
+          },
+          child: const Text('Absenden'),
         ),
       ],
     );
@@ -647,7 +681,10 @@ class PopUp extends StatelessWidget {
 }
 
 class TODOlist extends StatelessWidget {
-  const TODOlist({super.key});
+  const TODOlist({super.key, required this.todo, required this.day, required this.index});
+  final Map<String, bool> todo;
+  final TodoDay day;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
@@ -667,26 +704,36 @@ class TODOlist extends StatelessWidget {
                   Row(
                     children: [
                       const SizedBox(width: 5,),
-                      Icon(Icons.check_box, color: Colors.purple),
+                      IconButton(
+                          onPressed: () {
+                            Provider.of<TodoState>(context, listen: false).setCompleted(day, index, todo.keys.first);
+                          },
+                          icon: !todo.values.first ? Icon(Icons.check_box_outlined, size: 30, color: Colors.green,):
+                          Icon(Icons.check_box_outline_blank_outlined, size: 30, color: Colors.red),
+                      ),
                       const SizedBox(width: 10,),
-                      Text("Aboba", style: TextStyle(
-                        fontSize: 20,
-                      ),),
+                      Text(todo.keys.first, style: TextStyle(
+                          fontSize: 20,
+                          decoration: !todo.values.first ? TextDecoration.lineThrough : TextDecoration.none,
+                        ),
+                      ),
                     ],
                   ),
                   Row(
                     children: [
                       IconButton(
-                          onPressed: () {},
-                          icon: Icon(Icons.edit_outlined, size: 30,)
-                      ),
-                      IconButton(
                           onPressed: () async {
                             await showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
-                                  return PopUp();
+                                  return PopUp(day: day, index: index);
                                 });
+                          },
+                          icon: Icon(Icons.edit_outlined, size: 30,),
+                      ),
+                      IconButton(
+                          onPressed: () async {
+                            Provider.of<TodoState>(context, listen: false).deleteTodo(day, index);
                           },
                           icon: Icon(Icons.delete, size: 30,),
                       ),
@@ -703,11 +750,17 @@ class TODOlist extends StatelessWidget {
 }
 
 class TODODay extends StatelessWidget {
-  const TODODay({super.key});
+  const TODODay ({super.key, required this.day, required this.todos});
+  final Map<int, Map<String, bool>> todos;
+  final TodoDay day;
 
   @override
   Widget build(BuildContext context) {
+    if (todos.isEmpty) {
+      return SizedBox.shrink();
+    } else
     {
+      int maxKey = todos.keys.reduce((a, b) => a > b ? a : b);
       return Column(
         children: [Container(
           decoration: BoxDecoration(
@@ -718,13 +771,17 @@ class TODODay extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: 10,),
-              Text('Heute',
+              Text(day.abbreviation,
                 style: TextStyle(
                   fontSize: 20
                 ),
               ),
-              TODOlist(),
-              TODOlist(),
+              ...List.generate(maxKey + 1, (index) {
+                if (todos[index] == null) {
+                  return SizedBox.shrink();
+                }
+                return TODOlist(todo: todos[index]!, day: day, index: index,);
+              }),
               SizedBox(height: 10,),
             ],
           ),
@@ -742,38 +799,25 @@ class TODOPage extends StatefulWidget {
 }
 
 class _TODOPage extends State<TODOPage> {
-  Map<bool, String> todayTodos = {
-    false: "1",
-    false: "1",
-  };
-
-  Map<bool, String> tomorrowTodos = {
-    false: "2",
-    true: "2",
-  };
-
-  Map<bool, String> dayAfterTomorrowTodos = {
-    true: "3",
-    false: "3",
-  };
 
   @override
   Widget build(BuildContext context) {
-    {
-      return Padding(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          children: [
-            SizedBox(height: 10),
-            TODODay(),
-            SizedBox(height: 20),
-            TODODay(),
-            SizedBox(height: 20),
-            TODODay(),
-          ],
-        ),
-      );
-    }
+    Map<int, Map<String, bool>> todayTodos = Provider.of<TodoState>(context).todayTodos;
+    Map<int, Map<String, bool>> tomorrowTodos = Provider.of<TodoState>(context).tomorrowTodos;
+    Map<int, Map<String, bool>> dayAfterTomorrowTodos = Provider.of<TodoState>(context).dayAfterTomorrowTodos;
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          SizedBox(height: 10),
+          TODODay(todos: todayTodos, day: TodoDay.HE),
+          SizedBox(height: 20),
+          TODODay(todos: tomorrowTodos, day: TodoDay.MO),
+          SizedBox(height: 20),
+          TODODay(todos: dayAfterTomorrowTodos, day: TodoDay.UB),
+        ],
+      ),
+    );
   }
 }
 

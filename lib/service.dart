@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'main.dart';
+
 enum Weekday {
   MO('Montag'), DI('Dienstag'), MI('Mittwoch'), DO('Donnerstag'), FR('Freitag'),
       SA('Samstag'), SO('Sonntag');
@@ -118,5 +120,72 @@ class Service {
 
   List<List<String>> getDaySchedule(Weekday day) {
     return schedule[day]!;
+  }
+}
+
+
+class TodoState with ChangeNotifier {
+  Map<int, Map<String, bool>> _todayTodos = {
+    0: {"Aboba": true},
+  };
+
+  Map<int, Map<String, bool>> _tomorrowTodos = {
+    0: {"Aboba": true},
+  };
+
+  Map<int, Map<String, bool>> _dayAfterTomorrowTodos = {
+    0: {"Aboba": true},
+    1: {"Abobas": true},
+  };
+
+  // Getters for each day
+  Map<int, Map<String, bool>> get todayTodos => _todayTodos;
+  Map<int, Map<String, bool>> get tomorrowTodos => _tomorrowTodos;
+  Map<int, Map<String, bool>> get dayAfterTomorrowTodos => _dayAfterTomorrowTodos;
+
+  // Methods to update the todos for each day
+  void deleteTodo(TodoDay day, int index) {
+    switch (day) {
+      case TodoDay.HE:
+        _todayTodos.remove(index);
+        break;
+      case TodoDay.MO:
+        _tomorrowTodos.remove(index);
+        break;
+      case TodoDay.UB:
+        _dayAfterTomorrowTodos.remove(index);
+        break;
+    }
+    notifyListeners();
+  }
+
+  void setCompleted(TodoDay day, int index, String key) {
+    switch (day) {
+      case TodoDay.HE:
+        _todayTodos[index]!.update(key, (value) => !value);
+        break;
+      case TodoDay.MO:
+        _tomorrowTodos[index]!.update(key, (value) => !value);
+        break;
+      case TodoDay.UB:
+        _dayAfterTomorrowTodos[index]!.update(key, (value) => !value);
+        break;
+    }
+    notifyListeners();
+  }
+
+  void changeToDO(TodoDay day, int index, String newTodo) {
+    switch (day) {
+      case TodoDay.HE:
+        _todayTodos[index] = {newTodo: true};
+        break;
+      case TodoDay.MO:
+        _tomorrowTodos[index] = {newTodo: true};
+        break;
+      case TodoDay.UB:
+        _dayAfterTomorrowTodos[index] = {newTodo: true};
+        break;
+    }
+    notifyListeners();
   }
 }

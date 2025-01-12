@@ -8,7 +8,9 @@ void main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) => TodoState(),
-      child: MyApp(),
+      child: MaterialApp(
+        home: MyApp(),
+      ),
     ),
   );
 }
@@ -242,8 +244,8 @@ class Mensa extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 17.0),
-              const Text('Wann? 4.DS'),
               const Text('Wo? Alte Mensa'),
+              const Text('Angebot ansehen:'),
               const SizedBox(height: 17.0),
               ElevatedButton(
                 onPressed: () async {
@@ -482,7 +484,7 @@ class CustomDrawer extends StatelessWidget {
           ListTile(
             title: const Text('Credits:\nFam Dyk An \nMatrikelnummer: 5264779 dykanfam@gmail.com\n\n'
                 'Artem Kyryllov \nMatrikelnummer: 5202221 artem.kirillov160805@gmail.com\n\n'
-                'Konstantin Grigoryev \nMatrikelnummer: 5269096 kosttyagr@gmail.com'),
+                'Konstantin Grigoryev \nMatrikelnummer: 5269096 kosttyagr@gmail.com\nhttps://github.com/K-sta0/EMI-Flutter'),
           ),
         ],
       ),
@@ -679,6 +681,77 @@ class PopUp extends StatelessWidget {
     );
   }
 }
+
+class AddTask extends StatelessWidget {
+  final TextEditingController textController = TextEditingController();
+
+  AddTask({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Wählen Sie den Tag'),
+      content: DialogContent(controller: textController),
+      actions: [
+        TextButton(
+          onPressed: () {
+            final inputText = textController.text;
+            Provider.of<TodoState>(context, listen: false).addTodo(
+              Provider.of<TodoState>(context, listen: false).selectedDay,
+              inputText,
+            );
+            Navigator.of(context).pop();
+          },
+          child: const Text('Hinzufügen'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Schließen'),
+        ),
+      ],
+    );
+  }
+}
+
+class DialogContent extends StatelessWidget {
+  final TextEditingController controller;
+
+  const DialogContent({required this.controller, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        DropdownButton<TodoDay>(
+          value: Provider.of<TodoState>(context).selectedDay,
+          hint: const Text(''),
+          isExpanded: true,
+          items: TodoDay.values.map((TodoDay item) {
+            return DropdownMenuItem<TodoDay>(
+              value: item,
+              child: Text(item.abbreviation),
+            );
+          }).toList(),
+          onChanged: (TodoDay? newValue) {
+            Provider.of<TodoState>(context, listen: false)
+                .setSelectedDay(newValue!);
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 16.0),
+          child: TextField(
+            controller: controller,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 
 class TODOlist extends StatelessWidget {
   const TODOlist({super.key, required this.todo, required this.day, required this.index});
@@ -882,10 +955,16 @@ class _MyApp extends State<MyApp> {
           selectedItemColor: Colors.amber[800],
         ),
         drawer: CustomDrawer(onItemSelected: _updateSelectedIndex, index: currentPageIndex),
-        floatingActionButton: currentPageIndex == 2 ? FloatingActionButton.small(
+        floatingActionButton: currentPageIndex == 2 ? FloatingActionButton(
           elevation: 0.0,
           backgroundColor: Colors.white70,
-          onPressed: () {},
+          onPressed: () async {
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AddTask();
+              });
+          },
           heroTag: FloatingActionButtonLocation.centerFloat,
           child: const Icon(Icons.add),
         ): null,

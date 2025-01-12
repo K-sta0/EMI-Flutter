@@ -126,22 +126,30 @@ class Service {
 
 class TodoState with ChangeNotifier {
   Map<int, Map<String, bool>> _todayTodos = {
-    0: {"Aboba": true},
+    0: {"Beispiel für heute": true},
   };
 
   Map<int, Map<String, bool>> _tomorrowTodos = {
-    0: {"Aboba": true},
+    0: {"Beispiel für morgen": true},
   };
 
   Map<int, Map<String, bool>> _dayAfterTomorrowTodos = {
-    0: {"Aboba": true},
-    1: {"Abobas": true},
+    0: {"Beispiel für übermorgen 1": true},
+    1: {"Beispiel für übermorgen 2": true},
   };
+
+  TodoDay _selectedDay = TodoDay.HE;
 
   // Getters for each day
   Map<int, Map<String, bool>> get todayTodos => _todayTodos;
   Map<int, Map<String, bool>> get tomorrowTodos => _tomorrowTodos;
   Map<int, Map<String, bool>> get dayAfterTomorrowTodos => _dayAfterTomorrowTodos;
+  TodoDay get selectedDay => _selectedDay;
+
+  void setSelectedDay(TodoDay day) {
+    _selectedDay = day;
+    notifyListeners();
+  }
 
   // Methods to update the todos for each day
   void deleteTodo(TodoDay day, int index) {
@@ -184,6 +192,31 @@ class TodoState with ChangeNotifier {
         break;
       case TodoDay.UB:
         _dayAfterTomorrowTodos[index] = {newTodo: true};
+        break;
+    }
+    notifyListeners();
+  }
+
+  void addTodo(TodoDay selectedDay, String inputText) {
+    int i = 0;
+    switch (selectedDay) {
+      case TodoDay.HE:
+        while (_todayTodos.containsKey(i)) {
+          i++;
+        }
+        _todayTodos[i] = {inputText: true};
+        break;
+      case TodoDay.MO:
+        while (_tomorrowTodos.containsKey(i)) {
+          i++;
+        }
+        _tomorrowTodos[i] = {inputText: true};
+        break;
+      case TodoDay.UB:
+        while (_dayAfterTomorrowTodos.containsKey(i)) {
+          i++;
+        }
+        _dayAfterTomorrowTodos[i] = {inputText: true};
         break;
     }
     notifyListeners();

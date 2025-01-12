@@ -92,7 +92,7 @@ class FastNavigation extends StatelessWidget {
           children: [
             InkWell(
               onTap: () async {
-                final Uri url = Uri.parse('https://google.com');
+                final Uri url = Uri.parse('https://bildungsportal.sachsen.de/opal/');
                 if (await canLaunchUrl(url)) {
                   await launchUrl(url);
                 } else {
@@ -117,8 +117,13 @@ class FastNavigation extends StatelessWidget {
         Column(
           children: [
             InkWell(
-              onTap: () {
-                // Handle the button tap action
+              onTap: () async {
+                final Uri url = Uri.parse('https://msx.tu-dresden.de');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                } else {
+                  throw 'Could not launch $url';
+                }
               },
               borderRadius: BorderRadius.circular(8.0), // Optional for rounded corners
               child: Container(
@@ -138,8 +143,13 @@ class FastNavigation extends StatelessWidget {
         Column(
           children: [
             InkWell(
-              onTap: () {
-                // Handle the button tap action
+              onTap: () async {
+                final Uri url = Uri.parse('https://selma.tu-dresden.de/');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                } else {
+                  throw 'Could not launch $url';
+                }
               },
               borderRadius: BorderRadius.circular(8.0), // Optional for rounded corners
               child: Container(
@@ -159,8 +169,13 @@ class FastNavigation extends StatelessWidget {
         Column(
           children: [
             InkWell(
-              onTap: () {
-                // Handle the button tap action
+              onTap: () async {
+                final Uri url = Uri.parse('https://matrix.tu-dresden.de/');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                } else {
+                  throw 'Could not launch $url';
+                }
               },
               borderRadius: BorderRadius.circular(8.0), // Optional for rounded corners
               child: Container(

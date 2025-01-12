@@ -3,8 +3,13 @@ import 'package:url_launcher/url_launcher.dart';
 import 'service.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false, // Если не хочешь видеть дебаг-баннер
+    home: MyApp(),
+  ));
 }
+
+enum SampleItem { itemOne, itemTwo, itemThree }
 
 class Notification extends StatefulWidget {
   const Notification({super.key});
@@ -646,6 +651,76 @@ class PopUp extends StatelessWidget {
   }
 }
 
+class AddTask extends StatelessWidget {
+  const AddTask({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Wählen Sie den Tag'),
+      content: DialogContent(), 
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(); 
+          },
+          child: const Text('Hinzufügen'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(); 
+          },
+          child: const Text('Schließen'),
+        ),
+      ],
+    );
+  }
+}
+
+class DialogContent extends StatefulWidget {
+  const DialogContent({super.key});
+
+  @override
+  _DialogContentState createState() => _DialogContentState();
+}
+
+class _DialogContentState extends State<DialogContent> {
+  SampleItem? selectedItem;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        DropdownButton<SampleItem>(
+          value: selectedItem,
+          hint: const Text(''),
+          isExpanded: true, 
+          items: SampleItem.values.map((SampleItem item) {
+            return DropdownMenuItem<SampleItem>(
+              value: item,
+              child: Text(item.toString().split('.').last), 
+            );
+          }).toList(),
+          onChanged: (SampleItem? newValue) {
+            setState(() {
+              selectedItem = newValue; 
+            });
+          },
+        ),
+        if (selectedItem != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: TextField(
+              
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 class TODOlist extends StatelessWidget {
   const TODOlist({super.key});
 
@@ -841,7 +916,13 @@ class _MyApp extends State<MyApp> {
         floatingActionButton: currentPageIndex == 2 ? FloatingActionButton.small(
           elevation: 0.0,
           backgroundColor: Colors.white70,
-          onPressed: () {},
+          onPressed: () async {
+            await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AddTask();
+                                });
+          },
           heroTag: FloatingActionButtonLocation.centerFloat,
           child: const Icon(Icons.add),
         ): null,

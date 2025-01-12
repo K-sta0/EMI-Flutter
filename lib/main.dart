@@ -626,6 +626,157 @@ class _StundenplanPage extends State<StundenplanPage> {
   }
 }
 
+class PopUp extends StatelessWidget {
+  const PopUp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Einschreibung für mündliche Prüfungen'),
+      content: const Text('Die Einschreibung für mündliche Prüfungen hat begonnen und endet am 21.01.2025.'),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Schließen'),
+        ),
+      ],
+    );
+  }
+}
+
+class TODOlist extends StatelessWidget {
+  const TODOlist({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    {
+      return Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const SizedBox(width: 5,),
+                      Icon(Icons.check_box, color: Colors.purple),
+                      const SizedBox(width: 10,),
+                      Text("Aboba", style: TextStyle(
+                        fontSize: 20,
+                      ),),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.edit_outlined, size: 30,)
+                      ),
+                      IconButton(
+                          onPressed: () async {
+                            await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return PopUp();
+                                });
+                          },
+                          icon: Icon(Icons.delete, size: 30,),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      );
+    }
+  }
+}
+
+class TODODay extends StatelessWidget {
+  const TODODay({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    {
+      return Column(
+        children: [Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10)
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 10,),
+              Text('Heute',
+                style: TextStyle(
+                  fontSize: 20
+                ),
+              ),
+              TODOlist(),
+              TODOlist(),
+              SizedBox(height: 10,),
+            ],
+          ),
+        )]
+      );
+    }
+  }
+}
+
+class TODOPage extends StatefulWidget {
+  const TODOPage({super.key});
+
+  @override
+  State<TODOPage> createState() => _TODOPage();
+}
+
+class _TODOPage extends State<TODOPage> {
+  Map<bool, String> todayTodos = {
+    false: "1",
+    false: "1",
+  };
+
+  Map<bool, String> tomorrowTodos = {
+    false: "2",
+    true: "2",
+  };
+
+  Map<bool, String> dayAfterTomorrowTodos = {
+    true: "3",
+    false: "3",
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    {
+      return Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            SizedBox(height: 10),
+            TODODay(),
+            SizedBox(height: 20),
+            TODODay(),
+            SizedBox(height: 20),
+            TODODay(),
+          ],
+        ),
+      );
+    }
+  }
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -662,7 +813,7 @@ class _MyApp extends State<MyApp> {
           title: const Text('Study-App'),
           backgroundColor: Colors.blue.shade800,
         ),
-        body: [Dashboard(),StundenplanPage(),Stundenplan()][currentPageIndex],
+        body: [Dashboard(),StundenplanPage(),TODOPage()][currentPageIndex],
         bottomNavigationBar: BottomNavigationBar(
           items: const [
             BottomNavigationBarItem(
@@ -687,6 +838,13 @@ class _MyApp extends State<MyApp> {
           selectedItemColor: Colors.amber[800],
         ),
         drawer: CustomDrawer(onItemSelected: _updateSelectedIndex, index: currentPageIndex),
+        floatingActionButton: currentPageIndex == 2 ? FloatingActionButton.small(
+          elevation: 0.0,
+          backgroundColor: Colors.white70,
+          onPressed: () {},
+          heroTag: FloatingActionButtonLocation.centerFloat,
+          child: const Icon(Icons.add),
+        ): null,
       ),
     );
   }

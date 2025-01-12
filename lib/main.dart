@@ -65,7 +65,7 @@ class Date extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateString = Service().getDate();
+    final dateString = Service().getDateString(DateTime.now());
 
     return Center(
       child: Text(
@@ -214,26 +214,42 @@ class Mensa extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const Text(
-            'Mensa',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16.0,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                'Mensa',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24.0,
+                ),
+              ),
+              const SizedBox(height: 17.0),
+              const Text('Wann? 4.DS'),
+              const Text('Wo? Alte Mensa'),
+              const SizedBox(height: 17.0),
+              ElevatedButton(
+                onPressed: () async {
+                  final Uri url = Uri.parse('https://www.studentenwerk-dresden.de/mensen/speiseplan/');
+                  if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                  } else {
+                  throw 'Could not launch $url';
+                  }
+                },
+                child: const Text('Zum Angebot'),
+              ),
+            ],
           ),
-          const SizedBox(height: 8.0),
-          const Text('Wann? 4.DS'),
-          const Text('Wo? Alte Mensa'),
-          const SizedBox(height: 8.0),
-          ElevatedButton(
-            onPressed: () {},
-            child: const Text('Zum Angebot'),
-          ),
+          const Image(
+            image: NetworkImage('https://static.radiodresden.de/content/_processed_/f/9/csm_Kantine_Essensausgabe_Mittagsessen_Copyright_123rf_senkaya_21519a6004.jpg'),
+            height: 175.0,
+          )
         ],
-      ),
+      )
     );
   }
 }
@@ -252,6 +268,7 @@ class DoppelStundeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displaySubject = subject == "" ? 'frei' : subject;
     return SizedBox(
       width: 150.0,
       height: 100.0,
@@ -299,7 +316,7 @@ class DoppelStundeWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text(
-                    subject,
+                    displaySubject,
                     style: const TextStyle(
                       fontSize: 12.0,
                     ),
@@ -328,6 +345,8 @@ class Stundenplan extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<List<String>> subjects = Service().getDaySchedule(Service().getWeekday(DateTime.now()));
+
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -354,19 +373,19 @@ class Stundenplan extends StatelessWidget {
           const SizedBox(height: 16.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const [
-              DoppelStundeWidget(time: '7:30', subject: 'Zem', room: 'APB Zem 001'),
-              DoppelStundeWidget(time: '9:20', subject: 'frei', room: ''),
-              DoppelStundeWidget(time: '11:10', subject: 'Diskrete Artem', room: 'HSZ Agent 007'),
+            children: [
+              DoppelStundeWidget(time: '7:30', subject: subjects[0][0], room: subjects[0][1]),
+              DoppelStundeWidget(time: '9:20', subject: subjects[1][0], room: subjects[1][1]),
+              DoppelStundeWidget(time: '11:10', subject: subjects[2][0], room: subjects[2][1]),
             ],
           ),
           const SizedBox(height: 16.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const [
-              DoppelStundeWidget(time: '13:00', subject: 'Mensa', room: ''),
-              DoppelStundeWidget(time: '14:50', subject: 'AUD (AFD) Ü', room: 'APB EBA001'),
-              DoppelStundeWidget(time: '16:20', subject: 'frei', room: ''),
+            children: [
+              DoppelStundeWidget(time: '13:00', subject: subjects[3][0], room: subjects[3][1]),
+              DoppelStundeWidget(time: '14:50', subject: subjects[4][0], room: subjects[4][1]),
+              DoppelStundeWidget(time: '16:20', subject: subjects[5][0], room: subjects[5][1]),
             ],
           ),
         ],
@@ -473,6 +492,10 @@ class CalenderDSWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displaySubject = subject == "" ? 'frei' : subject;
+    final displayRoom = subject == "" ? '' : room;
+    final displayTeacher = subject == "" ? '' : teacher;
+
     return Container(
       padding: const EdgeInsets.all(16.0),
       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -497,12 +520,12 @@ class CalenderDSWidget extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  subject,
+                  displaySubject,
                   style: const TextStyle(fontSize: 14.0),
                 ),
-                if (room.isNotEmpty)
+                if (displayRoom.isNotEmpty)
                   Text(
-                    room,
+                    displayRoom,
                     style: TextStyle(
                       fontSize: 12.0,
                       color: Colors.grey.shade600,
@@ -515,7 +538,7 @@ class CalenderDSWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                teacher,
+                displayTeacher,
                 style: const TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.bold,
@@ -530,8 +553,17 @@ class CalenderDSWidget extends StatelessWidget {
   }
 }
 
-class StundenplanPage extends StatelessWidget {
+class StundenplanPage extends StatefulWidget {
   const StundenplanPage({super.key});
+
+  @override
+  State<StundenplanPage> createState() => _StundenplanPage();
+}
+
+class _StundenplanPage extends State<StundenplanPage> {
+  late DateTime currentDay = Service().getStatedDate(DateTime.now(), 0);
+  late String currentDayString = Service().getDateString(currentDay);
+  late List<List<String>> subjects = Service().getDaySchedule(Service().getWeekday(currentDay));
 
   @override
   Widget build(BuildContext context) {
@@ -544,13 +576,32 @@ class StundenplanPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+                    currentDay = Service().getStatedDate(currentDay, -1);
+                    currentDayString = Service().getDateString(currentDay);
+                    subjects = Service().getDaySchedule(Service().getWeekday(currentDay));
+                  });
+                },
                 icon: const Icon(Icons.arrow_back),
                 color: Colors.white,
               ),
-              Date(),
+              Text(
+                currentDayString,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+                    currentDay = Service().getStatedDate(currentDay, 1);
+                    currentDayString = Service().getDateString(currentDay);
+                    subjects = Service().getDaySchedule(Service().getWeekday(currentDay));
+                  });
+                },
                 icon: const Icon(Icons.arrow_forward),
                 color: Colors.white,
               ),
@@ -559,13 +610,13 @@ class StundenplanPage extends StatelessWidget {
           const SizedBox(height: 16.0),
           Expanded(
             child: ListView(
-              children: const [
-                CalenderDSWidget(time: '7:30 - 9:00', subject: 'Zem', room: 'APB Zem 001', teacher: 'Baumann Kto-to Tam',),
-                CalenderDSWidget(time: '9:20 - 10:50', subject: 'frei', room: '', teacher: '',),
-                CalenderDSWidget(time: '11:10 - 12:40', subject: 'Diskrete Artem', room: 'HSZ Agent 007', teacher: 'Artem Kirill',),
-                CalenderDSWidget(time: '13:00 - 14:30', subject: 'Mensa', room: '', teacher: '',),
-                CalenderDSWidget(time: '14:50 - 16:20', subject: 'AUD (AFD) Ü', room: 'APB EBA001', teacher: '',),
-                CalenderDSWidget(time: '16:40 - 18:10', subject: 'frei', room: '', teacher: 'Pyat let ya uchilsa na programmista...'),
+              children:  [
+                CalenderDSWidget(time: '7:30 - 9:00', subject: subjects[0][0], room: subjects[0][1], teacher: subjects[0][2],),
+                CalenderDSWidget(time: '9:20 - 10:50', subject: subjects[1][0], room: subjects[1][1], teacher: subjects[1][2],),
+                CalenderDSWidget(time: '11:10 - 12:40', subject: subjects[2][0], room: subjects[2][1], teacher: subjects[2][2],),
+                CalenderDSWidget(time: '13:00 - 14:30', subject: subjects[3][0], room: subjects[3][1], teacher: subjects[3][2],),
+                CalenderDSWidget(time: '14:50 - 16:20', subject: subjects[4][0], room: subjects[4][1], teacher: subjects[4][2],),
+                CalenderDSWidget(time: '16:40 - 18:10', subject: subjects[5][0], room: subjects[5][1], teacher: subjects[5][2]),
               ],
             ),
           ),

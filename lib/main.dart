@@ -240,13 +240,13 @@ class Mensa extends StatelessWidget {
 
 class DoppelStundeWidget extends StatelessWidget {
   final String time;
-  final String label;
+  final String subject;
   final String room;
 
   const DoppelStundeWidget({
     super.key,
     required this.time,
-    required this.label,
+    required this.subject,
     required this.room,
   });
 
@@ -306,7 +306,7 @@ class DoppelStundeWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text(
-                    label,
+                    subject,
                     style: const TextStyle(
                       fontSize: 12.0,
                     ),
@@ -362,18 +362,18 @@ class Stundenplan extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: const [
-              DoppelStundeWidget(time: '7:30', label: 'Zem', room: 'APB Zem 001'),
-              DoppelStundeWidget(time: '9:20', label: 'frei', room: ''),
-              DoppelStundeWidget(time: '11:10', label: 'Diskrete Artem', room: 'HSZ Agent 007'),
+              DoppelStundeWidget(time: '7:30', subject: 'Zem', room: 'APB Zem 001'),
+              DoppelStundeWidget(time: '9:20', subject: 'frei', room: ''),
+              DoppelStundeWidget(time: '11:10', subject: 'Diskrete Artem', room: 'HSZ Agent 007'),
             ],
           ),
           const SizedBox(height: 16.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: const [
-              DoppelStundeWidget(time: '13:00', label: 'Mensa', room: ''),
-              DoppelStundeWidget(time: '14:50', label: 'AUD (AFD) Ü', room: 'APB EBA001'),
-              DoppelStundeWidget(time: '16:20', label: 'frei', room: ''),
+              DoppelStundeWidget(time: '13:00', subject: 'Mensa', room: ''),
+              DoppelStundeWidget(time: '14:50', subject: 'AUD (AFD) Ü', room: 'APB EBA001'),
+              DoppelStundeWidget(time: '16:20', subject: 'frei', room: ''),
             ],
           ),
         ],
@@ -402,6 +402,124 @@ class Dashboard extends StatelessWidget {
           Mensa(),
           SizedBox(height: 16.0),
           Stundenplan(),
+        ],
+      ),
+    );
+  }
+}
+
+class CalenderDSWidget extends StatelessWidget {
+  final String time;
+  final String subject;
+  final String room;
+  final String teacher;
+
+  const CalenderDSWidget({
+    super.key,
+    required this.time,
+    required this.subject,
+    required this.room,
+    required this.teacher
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(Icons.access_time, color: Colors.blue.shade800),
+          const SizedBox(width: 16.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  time,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+                Text(
+                  subject,
+                  style: const TextStyle(fontSize: 14.0),
+                ),
+                if (room.isNotEmpty)
+                  Text(
+                    room,
+                    style: TextStyle(
+                      fontSize: 12.0,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+           Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                teacher,
+                style: const TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 21, 101, 192),
+                )
+              )
+            ]
+           )
+        ],
+      ),
+    );
+  }
+}
+
+class StundenplanPage extends StatelessWidget {
+  const StundenplanPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.arrow_back),
+                color: Colors.white,
+              ),
+              Date(),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.arrow_forward),
+                color: Colors.white,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16.0),
+          Expanded(
+            child: ListView(
+              children: const [
+                CalenderDSWidget(time: '7:30 - 9:00', subject: 'Zem', room: 'APB Zem 001', teacher: 'Baumann Kto-to Tam',),
+                CalenderDSWidget(time: '9:20 - 10:50', subject: 'frei', room: '', teacher: '',),
+                CalenderDSWidget(time: '11:10 - 12:40', subject: 'Diskrete Artem', room: 'HSZ Agent 007', teacher: 'Artem Kirill',),
+                CalenderDSWidget(time: '13:00 - 14:30', subject: 'Mensa', room: '', teacher: '',),
+                CalenderDSWidget(time: '14:50 - 16:20', subject: 'AUD (AFD) Ü', room: 'APB EBA001', teacher: '',),
+                CalenderDSWidget(time: '16:40 - 18:10', subject: 'frei', room: '', teacher: 'Pyat let ya uchilsa na programmista...'),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -444,7 +562,7 @@ class _MyApp extends State<MyApp> {
           title: const Text('Study-App'),
           backgroundColor: Colors.blue.shade800,
         ),
-        body: [Dashboard(),Mensa(),Stundenplan()][currentPageIndex],
+        body: [Dashboard(),StundenplanPage(),Stundenplan()][currentPageIndex],
         bottomNavigationBar: BottomNavigationBar(
           items: const [
             BottomNavigationBarItem(

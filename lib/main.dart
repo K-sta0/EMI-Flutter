@@ -253,7 +253,7 @@ class DoppelStundeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 100.0,
+      width: 150.0,
       height: 100.0,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -294,13 +294,6 @@ class DoppelStundeWidget extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(8.0),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 2.0,
-                    spreadRadius: 1.0,
-                  ),
-                ],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -408,6 +401,62 @@ class Dashboard extends StatelessWidget {
   }
 }
 
+class CustomDrawer extends StatelessWidget {
+  final Function(int) onItemSelected;
+  final int index;
+
+  const CustomDrawer({super.key, required this.onItemSelected, required this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text('Study-App Navigator', style: TextStyle(color: Colors.white)),
+          ),
+          ListTile(
+            title: const Text('Home'),
+            selected: index == 0,
+            selectedColor: Colors.amber[800],
+            onTap: () {
+              onItemSelected(0);
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Stundenplan'),
+            selectedColor: Colors.amber[800],
+            selected: index == 1,
+            onTap: () {
+              onItemSelected(1);
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('ToDO'),
+            selectedColor: Colors.amber[800],
+            selected: index == 2,
+            onTap: () {
+              onItemSelected(2);
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Credits:\nFam Dyk An \nMatrikelnummer: 5264779 dykanfam@gmail.com\n\n'
+                'Artem Kyryllov \nMatrikelnummer: 5202221 artem.kirillov160805@gmail.com\n\n'
+                'Konstantin Grigoryev \nMatrikelnummer: 5269096 kosttyagr@gmail.com'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -418,29 +467,29 @@ class MyApp extends StatefulWidget {
 class _MyApp extends State<MyApp> {
   int currentPageIndex = 0;
 
+  void _updateSelectedIndex(int index) {
+    setState(() {
+      currentPageIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Colors.blue.shade900,
         appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.list),
-            tooltip: 'Show Navigation Menu',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('This is a snackbar')));
-              }
-            ),
-          actions: [
-            IconButton(
-            icon: const Icon(Icons.account_circle),
-            tooltip: 'Show Navigation Menu',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('This is a snackbar')));
-              })
-            ],
+          leading: Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                tooltip: 'Show Navigation Menu',
+              );
+            },
+          ),
           title: const Text('Study-App'),
           backgroundColor: Colors.blue.shade800,
         ),
@@ -453,11 +502,11 @@ class _MyApp extends State<MyApp> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today),
-              label: 'Calendar',
+              label: 'Stundenplan',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.notifications),
-              label: 'Notifications',
+              label: 'ToDO',
             ),
           ],
           onTap: (int index) {
@@ -468,6 +517,7 @@ class _MyApp extends State<MyApp> {
           currentIndex: currentPageIndex,
           selectedItemColor: Colors.amber[800],
         ),
+        drawer: CustomDrawer(onItemSelected: _updateSelectedIndex, index: currentPageIndex),
       ),
     );
   }
